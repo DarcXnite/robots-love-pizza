@@ -30,3 +30,8 @@ to increase your score and eat the pizza the fallen enemies have dropped. As the
 - Insert Sprites
 - Insert Music
 - Add a start button & reset
+
+## Potential Roadblocks
+
+- Figuring out which direction the hero is facing
+- Implementing atk hit detection
