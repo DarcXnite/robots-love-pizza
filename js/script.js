@@ -24,7 +24,7 @@ class Sprite {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
-    // gravity fall check
+    // gravity fall check in else, ground detection in if
     if (this.position.y + this.height + this.velocity.y >= canvas.height) {
       this.velocity.y = 0;
     } else {
@@ -48,6 +48,9 @@ const drone = new Sprite({
 console.log(timmy);
 
 const keys = {
+  ArrowUp: {
+    pressed: false,
+  },
   ArrowRight: {
     pressed: false,
   },
@@ -58,6 +61,7 @@ const keys = {
 
 let lastKey;
 
+// runs the refresh loop just like gameloop
 const animate = () => {
   window.requestAnimationFrame(animate);
   ctx.fillStyle = "black";
@@ -65,8 +69,10 @@ const animate = () => {
   timmy.update();
   //   drone.update();
 
+  // resets movement so sprite doesnt continuiously move
   timmy.velocity.x = 0;
 
+  // movement checker, so the last key pressed will be the newest movement detected
   if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
     timmy.velocity.x = -5;
   } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
@@ -80,7 +86,7 @@ const actionsHandler = (e) => {
   switch (e.key) {
     case "ArrowUp":
     case " ":
-      console.log("jump");
+      timmy.velocity.y = -10;
 
       break;
     // case "ArrowDown":
@@ -114,6 +120,11 @@ const actionsEnder = (e) => {
     case "ArrowLeft":
       keys.ArrowLeft.pressed = false;
 
+      break;
+
+    case "ArrowUp":
+    case " ":
+      keys.ArrowUp.pressed = false;
       break;
     default:
       break;
