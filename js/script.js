@@ -21,8 +21,10 @@ class Sprite {
   update() {
     this.draw();
 
+    this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
+    // gravity fall check
     if (this.position.y + this.height + this.velocity.y >= canvas.height) {
       this.velocity.y = 0;
     } else {
@@ -32,7 +34,7 @@ class Sprite {
 }
 
 const timmy = new Sprite({
-  position: { x: 0, y: 0 },
+  position: { x: 480, y: 300 },
   velocity: { x: 0, y: 0 },
 });
 // timmy.draw();
@@ -45,8 +47,36 @@ const drone = new Sprite({
 
 console.log(timmy);
 
-function actionsHandler(e) {
-  const speed = 30;
+const keys = {
+  ArrowRight: {
+    pressed: false,
+  },
+  ArrowLeft: {
+    pressed: false,
+  },
+};
+
+let lastKey;
+
+const animate = () => {
+  window.requestAnimationFrame(animate);
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  timmy.update();
+  //   drone.update();
+
+  timmy.velocity.x = 0;
+
+  if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
+    timmy.velocity.x = -5;
+  } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
+    timmy.velocity.x = 5;
+  }
+};
+
+animate();
+
+const actionsHandler = (e) => {
   switch (e.key) {
     case "ArrowUp":
     case " ":
@@ -58,11 +88,13 @@ function actionsHandler(e) {
 
     //   break;
     case "ArrowLeft":
-      timmy.position.x -= speed;
+      keys.ArrowLeft.pressed = true;
+      lastKey = "ArrowLeft";
 
       break;
     case "ArrowRight":
-      timmy.position.x += speed;
+      keys.ArrowRight.pressed = true;
+      lastKey = "ArrowRight";
 
       break;
     case "a":
@@ -71,16 +103,22 @@ function actionsHandler(e) {
     default:
       break;
   }
-}
+};
 
-function animate() {
-  window.requestAnimationFrame(animate);
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  timmy.update();
-  drone.update();
-}
+const actionsEnder = (e) => {
+  switch (e.key) {
+    case "ArrowRight":
+      keys.ArrowRight.pressed = false;
 
-animate();
+      break;
+    case "ArrowLeft":
+      keys.ArrowLeft.pressed = false;
+
+      break;
+    default:
+      break;
+  }
+};
 
 document.addEventListener("keydown", actionsHandler);
+document.addEventListener("keyup", actionsEnder);
