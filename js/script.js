@@ -45,6 +45,34 @@ const drone = new Sprite({
 
 console.log(timmy);
 
+function actionsHandler(e) {
+  const speed = 30;
+  switch (e.key) {
+    case "ArrowUp":
+    case " ":
+      console.log("jump");
+
+      break;
+    // case "ArrowDown":
+    //   timmy.position.y += speed;
+
+    //   break;
+    case "ArrowLeft":
+      timmy.position.x -= speed;
+
+      break;
+    case "ArrowRight":
+      timmy.position.x += speed;
+
+      break;
+    case "a":
+      console.log("attack");
+      break;
+    default:
+      break;
+  }
+}
+
 function animate() {
   window.requestAnimationFrame(animate);
   ctx.fillStyle = "black";
@@ -54,3 +82,5 @@ function animate() {
 }
 
 animate();
+
+document.addEventListener("keydown", actionsHandler);
