@@ -4,18 +4,35 @@ const ctx = canvas.getContext("2d");
 canvas.width = 1024;
 canvas.height = 576;
 
-const gravity = 0.2;
+const gravity = 0.4;
 
-class Sprite {
-  constructor({ position, velocity }) {
+class Hero {
+  constructor({ position, velocity, color = "red" }) {
     this.position = position;
     this.velocity = velocity;
+    this.width = 80;
     this.height = 150;
+    this.lastKey;
+    this.attackBox = {
+      position: this.position,
+      width: 100,
+      height: 50,
+    };
+    this.color = color;
   }
 
   draw() {
     ctx.fillStyle = "red";
     ctx.fillRect(this.position.x, this.position.y, 80, this.height);
+
+    // drawing the attack box
+    ctx.fillStyle = "pink";
+    ctx.fillRect(
+      this.attackBox.position.x,
+      this.attackBox.position.y,
+      this.attackBox.width,
+      this.attackBox.height
+    );
   }
 
   update() {
@@ -33,15 +50,60 @@ class Sprite {
   }
 }
 
-const timmy = new Sprite({
+class Enemy {
+  constructor({ position, velocity, color }) {
+    this.position = position;
+    this.velocity = velocity;
+    this.width = 80;
+    this.height = 70;
+    this.lastKey;
+    this.attackBox = {
+      position: this.position,
+      width: 70,
+      height: 50,
+    };
+    this.color = color;
+  }
+
+  draw() {
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(this.position.x, this.position.y, 80, this.height);
+
+    // drawing the attack box
+    ctx.fillStyle = "pink";
+    ctx.fillRect(
+      this.attackBox.position.x,
+      this.attackBox.position.y,
+      this.attackBox.width,
+      this.attackBox.height
+    );
+  }
+
+  update() {
+    this.draw();
+
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+
+    // gravity fall check in else, ground detection in if
+    if (this.position.y + this.height + this.velocity.y >= canvas.height) {
+      this.velocity.y = 0;
+    } else {
+      this.velocity.y += gravity;
+    }
+  }
+}
+
+const timmy = new Hero({
   position: { x: 480, y: 300 },
   velocity: { x: 0, y: 0 },
 });
 // timmy.draw();
 
-const drone = new Sprite({
-  position: { x: 400, y: 0 },
+const drone = new Enemy({
+  position: { x: 700, y: 0 },
   velocity: { x: 0, y: 0 },
+  color: "yellow",
 });
 // drone.draw();
 
@@ -67,7 +129,7 @@ const animate = () => {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   timmy.update();
-  //   drone.update();
+  drone.update();
 
   // resets movement so sprite doesnt continuiously move
   timmy.velocity.x = 0;
@@ -77,6 +139,14 @@ const animate = () => {
     timmy.velocity.x = -5;
   } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
     timmy.velocity.x = 5;
+  }
+
+  // collision detection
+  if (
+    timmy.attackBox.position.x + timmy.attackBox.width >= drone.position.x &&
+    timmy.attackBox.position.x <= drone.position.x + drone.width
+  ) {
+    console.log("touched");
   }
 };
 
