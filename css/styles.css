@@ -1,11 +1,27 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
-  margin: 0;
-  padding: 0;
   text-align: center;
+}
+
+.container {
+  position: relative;
+  display: inline-block;
+  margin-top: 50px;
+}
+
+.score {
+  position: absolute;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  color: blue;
 }
 
 canvas {
   background-image: url("../images/robots-love-pizza-wireframe.jpeg");
   background-size: contain;
-  margin-top: 50px;
 }

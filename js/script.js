@@ -6,6 +6,10 @@ canvas.height = 576;
 
 const gravity = 0.4;
 
+const randNum = () => {
+  return Math.floor(Math.random() * 400 + 50);
+};
+
 class Hero {
   constructor({ position, velocity, color = "red", offset }) {
     this.position = position;
@@ -47,6 +51,7 @@ class Hero {
     this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
     this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
 
+    // movement calculation
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
@@ -55,6 +60,18 @@ class Hero {
       this.velocity.y = 0;
     } else {
       this.velocity.y += gravity;
+    }
+
+    // left side detection // kind of working
+    if (this.position.x + this.width + this.velocity.x === 0) {
+      this.velocity.x = 0;
+      console.log("hit left wall");
+    }
+
+    // right wall detection
+    if (this.position.x + this.width + this.velocity.x >= canvas.width) {
+      this.velocity.x = 0;
+      console.log("hit right wall");
     }
   }
 
@@ -127,7 +144,7 @@ class Enemy {
 }
 
 const timmy = new Hero({
-  position: { x: 480, y: 300 },
+  position: { x: 100, y: 400 },
   velocity: { x: 0, y: 0 },
   color: "red",
   offset: { x: 50, y: 20 },
@@ -167,13 +184,48 @@ const attackBoxCollision = ({ rect1, rect2 }) => {
   );
 };
 
+const drones = [];
+
+const spawnDrone = () => {
+  // drones.push(
+  //   new Enemy({
+  //     position: { x: 1024, y: 100 },
+  //     velocity: { x: -1, y: 0 },
+  //     color: "yellow",
+  //     offset: { x: 75, y: 0 },
+  //   })
+  // );
+  setInterval(() => {
+    drones.push(
+      new Enemy({
+        position: { x: 1024, y: randNum() },
+        velocity: { x: -1, y: 0 },
+        color: "yellow",
+        offset: { x: 75, y: 0 },
+      })
+    );
+    console.log(drones);
+  }, 3000);
+};
+
+let heroHealth = 3;
+let droneHealth = 1;
+// const hitsTaken = () => {
+//   if ()
+// }
+
 // runs the refresh loop just like gameloop
 const animate = () => {
   window.requestAnimationFrame(animate);
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   timmy.update();
-  drone.update();
+  // drone.update();
+
+  // spawn drones
+  drones.forEach((drone) => {
+    drone.update();
+  });
 
   // resets movement so sprite doesnt continuiously move
   timmy.velocity.x = 0;
@@ -189,18 +241,24 @@ const animate = () => {
   if (attackBoxCollision({ rect1: timmy, rect2: drone }) && timmy.isAttacking) {
     // ensure that only 1 hit per attack press
     timmy.isAttacking = false;
-    console.log("touched");
+    droneHealth--;
+    if (droneHealth === 0) {
+      console.log("destroyed");
+    }
+    console.log("attacking");
   }
 
   // enemy attack collision detecton
   if (attackBoxCollision({ rect1: drone, rect2: timmy }) && drone.isAttacking) {
     // ensure that only 1 hit per attack press
     drone.isAttacking = false;
-    console.log("touched");
+    heroHealth--;
+    document.querySelector("#heroHealth").innerText = heroHealth;
   }
 };
 
 animate();
+spawnDrone();
 
 const actionsHandler = (e) => {
   switch (e.key) {
