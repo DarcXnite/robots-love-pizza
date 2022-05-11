@@ -10,6 +10,28 @@ const randNum = () => {
   return Math.floor(Math.random() * 400 + 50);
 };
 
+class Image {
+  constructor({ position, velocity, color = "red", offset }) {
+    this.position = position;
+    this.velocity = velocity;
+    this.width = 80;
+    this.height = 150;
+    this.lastKey;
+    this.attackBox = {
+      position: { x: this.position.x, y: this.position.y },
+      offset,
+      width: 180,
+      height: 100,
+    };
+  }
+
+  draw() {}
+
+  update() {
+    this.draw();
+  }
+}
+
 class Hero {
   constructor({ position, velocity, color = "red", offset }) {
     this.position = position;
@@ -27,6 +49,7 @@ class Hero {
     this.isAttacking;
     this.isJumping;
     this.jumpCount = 0;
+    this.heroHealth = 3;
   }
 
   draw() {
@@ -147,14 +170,14 @@ class Enemy {
   }
 
   attack() {
-    if (this.canAttack === true) {
+    if (this.canAttack) {
       this.canAttack = false;
       if (this.position.x - timmy.position.x < 200) {
         this.inRange = true;
         this.isAttacking = true;
         setTimeout(() => {
           this.isAttacking = false;
-        }, 1000);
+        }, 2000);
       } else {
         this.isAttacking = false;
       }
@@ -162,7 +185,7 @@ class Enemy {
       setTimeout(() => {
         this.canAttack = true;
         this.inRange = false;
-      }, 2000);
+      }, 2500);
     }
 
     // setTimeout(() => {
@@ -233,6 +256,9 @@ let heroHealth = 3;
 // runs the refresh loop just like gameloop
 const animate = () => {
   window.requestAnimationFrame(animate);
+  if (heroHealth <= 0) {
+    return;
+  }
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   timmy.update();
@@ -241,6 +267,32 @@ const animate = () => {
   // spawn drones
   drones.forEach((drone, index) => {
     drone.update();
+
+    // attack collision detection
+    if (
+      attackBoxCollision({ rect1: timmy, rect2: drone }) &&
+      timmy.isAttacking
+    ) {
+      // ensure that only 1 hit per attack press
+      timmy.isAttacking = false;
+      drone.isAlive = false;
+      if (!drone.isAlive) {
+        console.log("destroyed");
+        drones.splice(index, 1);
+      }
+      console.log("attacking");
+    }
+
+    // enemy attack collision detecton
+    if (
+      attackBoxCollision({ rect1: drone, rect2: timmy }) &&
+      drone.isAttacking
+    ) {
+      // ensure that only 1 hit per attack press
+      drone.isAttacking = false;
+      heroHealth--;
+      document.querySelector("#heroHealth").innerText = heroHealth;
+    }
 
     if (drone.inRange) {
       drone.velocity.x = 0;
@@ -257,32 +309,6 @@ const animate = () => {
 
     if (timmy.velocity.y < 0) {
       drone.velocity.y = -7;
-    }
-
-    // enemy attack collision detecton
-    if (
-      attackBoxCollision({ rect1: drone, rect2: timmy }) &&
-      drone.isAttacking
-    ) {
-      // ensure that only 1 hit per attack press
-      drone.isAttacking = false;
-      heroHealth--;
-      document.querySelector("#heroHealth").innerText = heroHealth;
-    }
-
-    // attack collision detection
-    if (
-      attackBoxCollision({ rect1: timmy, rect2: drone }) &&
-      timmy.isAttacking
-    ) {
-      // ensure that only 1 hit per attack press
-      timmy.isAttacking = false;
-      drone.isAlive = false;
-      if (!drone.isAlive) {
-        console.log("destroyed");
-        drones.splice(index, 1);
-      }
-      console.log("attacking");
     }
   });
 
