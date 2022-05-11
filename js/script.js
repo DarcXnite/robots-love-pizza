@@ -25,6 +25,8 @@ class Hero {
     };
     this.color = color;
     this.isAttacking;
+    this.isJumping;
+    this.jumpCount = 0;
   }
 
   draw() {
@@ -91,6 +93,7 @@ class Enemy {
     this.width = 80;
     this.height = 70;
     this.lastKey;
+    this.isAlive = true;
     this.attackBox = {
       position: { x: this.position.x, y: this.position.y },
       offset,
@@ -100,6 +103,8 @@ class Enemy {
 
     this.color = color;
     this.isAttacking;
+    this.isJumping;
+    this.jumpCount = 0;
   }
 
   draw() {
@@ -107,13 +112,15 @@ class Enemy {
     ctx.fillRect(this.position.x, this.position.y, 80, this.height);
 
     // drawing the attack box
-    ctx.fillStyle = "pink";
-    ctx.fillRect(
-      this.attackBox.position.x,
-      this.attackBox.position.y,
-      this.attackBox.width,
-      this.attackBox.height
-    );
+    if (this.isAttacking) {
+      ctx.fillStyle = "pink";
+      ctx.fillRect(
+        this.attackBox.position.x,
+        this.attackBox.position.y,
+        this.attackBox.width,
+        this.attackBox.height
+      );
+    }
   }
 
   update() {
@@ -129,6 +136,8 @@ class Enemy {
     // gravity fall check in else, ground detection in if
     if (this.position.y + this.height + this.velocity.y >= canvas.height) {
       this.velocity.y = 0;
+      this.isJumping = false;
+      this.jumpCount = 0;
     } else {
       this.velocity.y += gravity;
     }
@@ -187,29 +196,20 @@ const attackBoxCollision = ({ rect1, rect2 }) => {
 const drones = [];
 
 const spawnDrone = () => {
-  // drones.push(
-  //   new Enemy({
-  //     position: { x: 1024, y: 100 },
-  //     velocity: { x: -1, y: 0 },
-  //     color: "yellow",
-  //     offset: { x: 75, y: 0 },
-  //   })
-  // );
   setInterval(() => {
     drones.push(
       new Enemy({
-        position: { x: 1024, y: randNum() },
-        velocity: { x: -1, y: 0 },
+        position: { x: 900, y: randNum() },
+        velocity: { x: 0, y: 0 },
         color: "yellow",
         offset: { x: 75, y: 0 },
       })
     );
-    console.log(drones);
+    // console.log(drones);
   }, 3000);
 };
 
 let heroHealth = 3;
-let droneHealth = 1;
 // const hitsTaken = () => {
 //   if ()
 // }
@@ -221,10 +221,36 @@ const animate = () => {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   timmy.update();
   // drone.update();
+  droneMovement();
 
   // spawn drones
-  drones.forEach((drone) => {
+  drones.forEach((drone, index) => {
     drone.update();
+
+    if (timmy.position.x <= drone.position.x) {
+      drone.position.x -= 2;
+    }
+    if (timmy.velocity.y < 0) {
+      drone.velocity.y = -7;
+    }
+    if (timmy.position.x >= drone.position.x) {
+      drone.position.x += 2;
+    }
+
+    // attack collision detection
+    if (
+      attackBoxCollision({ rect1: timmy, rect2: drone }) &&
+      timmy.isAttacking
+    ) {
+      // ensure that only 1 hit per attack press
+      timmy.isAttacking = false;
+      drone.isAlive = false;
+      if (!drone.isAlive) {
+        console.log("destroyed");
+        drones.splice(index, 1);
+      }
+      console.log("attacking");
+    }
   });
 
   // resets movement so sprite doesnt continuiously move
@@ -238,15 +264,15 @@ const animate = () => {
   }
 
   // attack collision detection
-  if (attackBoxCollision({ rect1: timmy, rect2: drone }) && timmy.isAttacking) {
-    // ensure that only 1 hit per attack press
-    timmy.isAttacking = false;
-    droneHealth--;
-    if (droneHealth === 0) {
-      console.log("destroyed");
-    }
-    console.log("attacking");
-  }
+  // if (attackBoxCollision({ rect1: timmy, rect2: drone }) && timmy.isAttacking) {
+  //   // ensure that only 1 hit per attack press
+  //   timmy.isAttacking = false;
+  //   drone.isAlive = false;
+  //   if (!drone.isAlive) {
+  //     console.log("destroyed");
+  //   }
+  //   console.log("attacking");
+  // }
 
   // enemy attack collision detecton
   if (attackBoxCollision({ rect1: drone, rect2: timmy }) && drone.isAttacking) {
@@ -263,8 +289,12 @@ spawnDrone();
 const actionsHandler = (e) => {
   switch (e.key) {
     case "ArrowUp":
-    case " ":
+    case "s":
+      timmy.isJumping === true;
+      timmy.jumpCount++;
       timmy.velocity.y = -10;
+      console.log(timmy.isJumping);
+      console.log(timmy.jumpCount);
 
       break;
     // case "ArrowDown":
@@ -301,7 +331,7 @@ const actionsEnder = (e) => {
       break;
 
     case "ArrowUp":
-    case " ":
+    case "s":
       keys.ArrowUp.pressed = false;
       break;
     default:
