@@ -6,16 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Robots Love Pizza</title>
     <link rel="stylesheet" href="./css/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Press+Start+2P"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="container">
       <div class="score">
-        <div id="heroHealth">3</div>
-        <div>Score</div>
+        <div>Health: <span id="heroHealth">3</span>♥️</div>
+        <div>Score:</div>
       </div>
+
+      <div class="instructions">
+        <button id="startGame">Start Game</button>
+        <p>Kill All The Robots</p>
+        <p>A: ATTACK</p>
+        <p>S/ARROW UP: JUMP</p>
+        <p>Move with ARROW KEYS LEFT AND RIGHT</p>
+      </div>
+
       <canvas></canvas>
     </div>
 
-    <script src="./js/script.js"></script>
+    <script src="./js/classes.js"></script>
+    <script src="./script.js"></script>
   </body>
 </html>
