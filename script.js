@@ -13,6 +13,11 @@ const randNum = () => {
   return Math.floor(Math.random() * 400 + 50);
 };
 
+const bgMusic = () => {
+  let audio = new Audio("./audio/dark-dragon.mp3");
+  audio.play();
+};
+
 const background = new Sprite({
   position: {
     x: 0,
@@ -291,6 +296,7 @@ const animate = () => {
 
 startBtn.addEventListener("click", () => {
   startGame();
+  bgMusic();
   document.querySelector(".instructions").classList.add("display-none");
 });
 
