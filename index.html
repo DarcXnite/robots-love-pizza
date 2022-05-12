@@ -15,12 +15,30 @@
     <div class="container">
       <div class="score">
         <div>Health: <span id="heroHealth">3</span>♥️</div>
-        <div>Score:</div>
+        <div>Destroyed: <span id="killCount">0</span></div>
       </div>
 
       <div class="instructions">
         <button id="startGame">Start Game</button>
-        <p>Kill All The Robots</p>
+        <p>Kill 50 Drones</p>
+        <p>A: ATTACK</p>
+        <p>S/ARROW UP: JUMP</p>
+        <p>Move with ARROW KEYS LEFT AND RIGHT</p>
+      </div>
+
+      <div class="loserScreen display-none">
+        <p>YOU WERE DESTROYED!</p>
+        <button id="restartGame">Restart?</button>
+        <p>Kill 50 Drones</p>
+        <p>A: ATTACK</p>
+        <p>S/ARROW UP: JUMP</p>
+        <p>Move with ARROW KEYS LEFT AND RIGHT</p>
+      </div>
+
+      <div class="winnerScreen display-none">
+        <p>🍕 YOU GOT THEM ALL, EAT ALL THE PIZZA! 🍕</p>
+        <button id="winnerRestartGame">Restart?</button>
+        <p>Kill 50 Drones</p>
         <p>A: ATTACK</p>
         <p>S/ARROW UP: JUMP</p>
         <p>Move with ARROW KEYS LEFT AND RIGHT</p>

@@ -49,11 +49,11 @@ const timmy = new Hero({
   },
   attackBox: {
     offset: {
-      x: 0,
+      x: 75,
       y: 0,
     },
     width: 100,
-    height: 50,
+    height: 70,
   },
 });
 
@@ -64,20 +64,28 @@ const drone = new Enemy({
   offset: { x: 75, y: 0 },
   imageSrc: "./images/sprites/droid-right2left.png",
   framesMax: 6,
-  scale: 3,
+  scale: 2,
   offset: {
     x: 55,
-    y: 153,
+    y: 53,
   },
   sprites: {
     idle: {
       imageSrc: "./images/sprites/droid-right2left.png",
       framesMax: 6,
     },
-    // attack: {
-    //   imageSrc: "./images/sprites/timmy-attack.png",
-    //   framesMax: 6,
-    // },
+    attack: {
+      imageSrc: "./images/sprites/droid-attack-right2left.png",
+      framesMax: 6,
+    },
+  },
+  attackBox: {
+    offset: {
+      x: 55,
+      y: 0,
+    },
+    width: 70,
+    height: 50,
   },
 });
 
@@ -114,75 +122,137 @@ const spawnDrone = () => {
         velocity: { x: 0, y: 0 },
         color: "yellow",
         offset: { x: 75, y: 0 },
+        imageSrc: "./images/sprites/droid-right2left.png",
+        framesMax: 6,
+        scale: 2,
+        offset: {
+          x: 55,
+          y: 53,
+        },
+        sprites: {
+          idle: {
+            imageSrc: "./images/sprites/droid-right2left.png",
+            framesMax: 6,
+          },
+          attack: {
+            imageSrc: "./images/sprites/droid-attack-right2left.png",
+            framesMax: 6,
+          },
+        },
+        attackBox: {
+          offset: {
+            x: 55,
+            y: 0,
+          },
+          width: 70,
+          height: 50,
+        },
       })
     );
     // console.log(drones);
-  }, 2000);
+  }, 1600);
 };
 
 let heroHealth = 3;
 let killCount = 0;
 
+const startGame = () => {
+  gameState = true;
+  heroHealth = 3;
+  killCount = 0;
+  animate();
+  spawnDrone();
+};
+
 // runs the refresh loop just like gameloop
 const animate = () => {
   window.requestAnimationFrame(animate);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   background.update();
-  if (heroHealth <= 0 || killCount === 50) {
+  if (heroHealth <= 0) {
+    gameState === false;
+    const loserScreen = document.querySelector(".loserScreen");
+    loserScreen.classList.remove("display-none");
+    document.querySelector(".loserScreen").classList.remove("display-none");
+    document.querySelector("#restartGame").addEventListener("click", () => {
+      window.location.reload();
+      // loserScreen.classList.add("display-none");
+    });
     return;
+  }
+
+  if (killCount === 50) {
+    gameState === false;
+    const winnerScreen = document.querySelector(".winnerScreen");
+    winnerScreen.classList.remove("display-none");
+    document
+      .querySelector("#winnerRestartGame")
+      .addEventListener("click", () => {
+        window.location.reload();
+        // winnerScreen.classList.add("display-none");
+      });
+    return;
+  }
+
+  if (!gameState) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
   timmy.update();
 
-  drone.update();
+  // drone.update();
 
   // spawn drones
-  // drones.forEach((drone, index) => {
-  //   drone.update();
+  drones.forEach((drone, index) => {
+    drone.update();
 
-  //   // attack collision detection
-  //   if (
-  //     attackBoxCollision({ rect1: timmy, rect2: drone }) &&
-  //     timmy.isAttacking
-  //   ) {
-  //     // ensure that only 1 hit per attack press
-  //     timmy.isAttacking = false;
-  //     drone.isAlive = false;
-  //     if (!drone.isAlive) {
-  //       console.log("destroyed");
-  //       killCount++;
-  //       drones.splice(index, 1);
-  //     }
-  //     console.log("attacking");
-  //   }
+    // attack collision detection
+    if (
+      attackBoxCollision({ rect1: timmy, rect2: drone }) &&
+      timmy.isAttacking
+    ) {
+      // ensure that only 1 hit per attack press
+      timmy.isAttacking = false;
+      drone.isAlive = false;
+      if (!drone.isAlive) {
+        console.log("destroyed");
+        killCount++;
+        drones.splice(index, 1);
+        document.querySelector("#killCount").innerText = killCount;
+      }
+      console.log("attacking");
+    }
 
-  //   // enemy attack collision detecton
-  //   if (
-  //     attackBoxCollision({ rect1: drone, rect2: timmy }) &&
-  //     drone.isAttacking
-  //   ) {
-  //     // ensure that only 1 hit per attack press
-  //     drone.isAttacking = false;
-  //     heroHealth--;
-  //     document.querySelector("#heroHealth").innerText = heroHealth;
-  //   }
+    // enemy attack collision detecton
+    if (
+      attackBoxCollision({ rect1: drone, rect2: timmy }) &&
+      drone.isAttacking
+    ) {
+      // ensure that only 1 hit per attack press
+      drone.isAttacking = false;
+      heroHealth--;
+      document.querySelector("#heroHealth").innerText = heroHealth;
+    }
 
-  //   if (drone.inRange) {
-  //     drone.velocity.x = 0;
-  //     return;
-  //   } else {
-  //     if (timmy.position.x <= drone.position.x) {
-  //       drone.position.x -= 2;
-  //     }
+    if (drone.inRange) {
+      drone.velocity.x = 0;
+      return;
+    } else {
+      if (timmy.position.x <= drone.position.x) {
+        drone.position.x -= 2;
+      }
 
-  //     if (timmy.position.x >= drone.position.x) {
-  //       drone.position.x += 2;
-  //     }
-  //   }
+      if (timmy.position.x >= drone.position.x) {
+        drone.position.x += 2;
+      }
+    }
 
-  //   if (timmy.velocity.y < 0) {
-  //     drone.velocity.y = -7;
-  //   }
-  // });
+    if (timmy.velocity.y < 0) {
+      const droneJumps = setTimeout(() => {
+        drone.velocity.y = -7;
+      }, 800);
+    }
+  });
 
   // resets movement so sprite doesnt continuiously move
   timmy.velocity.x = 0;
@@ -219,11 +289,10 @@ const animate = () => {
   }
 };
 
-// startBtn.addEventListener("click", () => {
-animate();
-spawnDrone();
-//   document.querySelector(".instructions").classList.add("display-none");
-// });
+startBtn.addEventListener("click", () => {
+  startGame();
+  document.querySelector(".instructions").classList.add("display-none");
+});
 
 const actionsHandler = (e) => {
   switch (e.key) {

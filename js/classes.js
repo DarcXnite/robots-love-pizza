@@ -195,19 +195,37 @@ class Hero extends Sprite {
   }
 }
 
-class Enemy {
-  constructor({ position, velocity, color, offset }) {
+class Enemy extends Sprite {
+  constructor({
+    position,
+    velocity,
+    color,
+    imageSrc,
+    scale = 1,
+    framesMax = 1,
+    offset = { x: 0, y: 0 },
+    sprites,
+    attackBox = { offset: {}, width: undefined, height: undefined },
+  }) {
+    super({
+      position,
+      imageSrc,
+      scale,
+      framesMax,
+      offset,
+    });
+
     this.position = position;
     this.velocity = velocity;
-    this.width = 80;
-    this.height = 70;
+    this.width = 30;
+    this.height = 40;
     this.lastKey;
     this.isAlive = true;
     this.attackBox = {
       position: { x: this.position.x, y: this.position.y },
-      offset,
-      width: 70,
-      height: 50,
+      offset: attackBox.offset,
+      width: attackBox.width,
+      height: attackBox.height,
     };
 
     this.color = color;
@@ -216,27 +234,58 @@ class Enemy {
     this.canAttack = true;
     this.isJumping;
     this.jumpCount = 0;
-  }
+    this.framesCurrent = 0;
+    this.framesElapsed = 0;
+    this.framesHold = 5;
+    this.sprites = sprites;
 
-  draw() {
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.position.x, this.position.y, 80, this.height);
-
-    // drawing the attack box
-    if (this.isAttacking) {
-      ctx.fillStyle = "pink";
-      ctx.fillRect(
-        this.attackBox.position.x,
-        this.attackBox.position.y,
-        this.attackBox.width,
-        this.attackBox.height
-      );
+    for (const sprite in this.sprites) {
+      sprites[sprite].image = new Image();
+      sprites[sprite].image.src = sprites[sprite].imageSrc;
     }
   }
+
+  // draw() {
+  //   ctx.fillStyle = this.color;
+  //   ctx.fillRect(this.position.x, this.position.y, 80, this.height);
+
+  //   // drawing the attack box
+  //   if (this.isAttacking) {
+  //     ctx.fillStyle = "pink";
+  //     ctx.fillRect(
+  //       this.attackBox.position.x,
+  //       this.attackBox.position.y,
+  //       this.attackBox.width,
+  //       this.attackBox.height
+  //     );
+  //   }
+  // }
 
   update() {
     this.draw();
     this.attack();
+    this.framesElapsed++;
+
+    if (this.framesElapsed % this.framesHold === 0) {
+      if (this.framesCurrent < this.framesMax - 1) {
+        this.framesCurrent++;
+      } else {
+        this.framesCurrent = 0;
+      }
+    }
+
+    // draws out enemy
+    // ctx.fillStyle = this.color;
+    // ctx.fillRect(this.position.x, this.position.y, 80, this.height);
+
+    // draws out enemy attack box
+    // ctx.fillStyle = "pink";
+    // ctx.fillRect(
+    //   this.attackBox.position.x,
+    //   this.attackBox.position.y,
+    //   this.attackBox.width,
+    //   this.attackBox.height
+    // );
 
     // attack box to stay with character
     this.attackBox.position.x = this.position.x - this.attackBox.offset.x;
@@ -246,7 +295,7 @@ class Enemy {
     this.position.y += this.velocity.y;
 
     // gravity fall check in else, ground detection in if
-    if (this.position.y + this.height + this.velocity.y >= canvas.height - 45) {
+    if (this.position.y + this.height + this.velocity.y >= canvas.height - 50) {
       this.velocity.y = 0;
       this.isJumping = false;
       this.jumpCount = 0;
@@ -258,9 +307,12 @@ class Enemy {
   attack() {
     if (this.canAttack) {
       this.canAttack = false;
-      if (this.position.x - timmy.position.x <= 200) {
+      if (this.position.x - timmy.position.x <= 175) {
         this.inRange = true;
         this.isAttacking = true;
+        if (this.isAttacking) {
+          this.switchSprite("attack");
+        }
         setTimeout(() => {
           this.isAttacking = false;
         }, 2000);
@@ -273,9 +325,37 @@ class Enemy {
         this.inRange = false;
       }, 2500);
     }
+  }
 
-    // setTimeout(() => {
-    //   this.isAttacking = false;
-    // }, 1000);
+  switchSprite(sprite) {
+    if (
+      this.image === this.sprites.attack.image &&
+      this.framesCurrent < this.sprites.attack.framesMax - 1
+    ) {
+      return;
+    }
+    switch (sprite) {
+      case "idle":
+        if (this.image !== this.sprites.idle.image) {
+          this.image = this.sprites.idle.image;
+          this.framesMax = this.sprites.idle.framesMax;
+          this.framesCurrent = 0;
+        }
+        break;
+      case "attack":
+        if (this.image !== this.sprites.attack.image) {
+          this.image = this.sprites.attack.image;
+          this.framesMax = this.sprites.attack.framesMax;
+          this.framesCurrent = 0;
+        }
+        break;
+      case "damage":
+        break;
+      case "death":
+        break;
+
+      default:
+        break;
+    }
   }
 }
