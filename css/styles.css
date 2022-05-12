@@ -48,7 +48,6 @@ button:hover {
 }
 
 canvas {
-  background: rgb(255, 0, 1) url("../images/bg.png") no-repeat;
   background-size: cover;
   border: 10px solid black;
   border-radius: 10px;

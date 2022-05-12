@@ -93,23 +93,6 @@ class Hero extends Sprite {
     }
   }
 
-  // draw() {
-  //   ctx.fillStyle = this.color;
-  //   ctx.fillRect(this.position.x, this.position.y, 80, this.height);
-
-  //   // drawing the attack box
-
-  //   if (this.isAttacking) {
-  //     ctx.fillStyle = "pink";
-  //     ctx.fillRect(
-  //       this.attackBox.position.x,
-  //       this.attackBox.position.y,
-  //       this.attackBox.width,
-  //       this.attackBox.height
-  //     );
-  //   }
-  // }
-
   update() {
     this.draw();
     this.framesElapsed++;
@@ -164,11 +147,51 @@ class Hero extends Sprite {
   }
 
   attack() {
+    this.switchSprite("attack");
     this.isAttacking = true;
 
     setTimeout(() => {
       this.isAttacking = false;
     }, 100);
+  }
+
+  switchSprite(sprite) {
+    if (
+      this.image === this.sprites.attack.image &&
+      this.framesCurrent < this.sprites.attack.framesMax - 1
+    ) {
+      return;
+    }
+    switch (sprite) {
+      case "idle":
+        if (this.image !== this.sprites.idle.image) {
+          this.image = this.sprites.idle.image;
+          this.framesMax = this.sprites.idle.framesMax;
+          this.framesCurrent = 0;
+        }
+        break;
+      case "run":
+        if (this.image !== this.sprites.run.image) {
+          this.image = this.sprites.run.image;
+          this.framesMax = this.sprites.run.framesMax;
+          this.framesCurrent = 0;
+        }
+        break;
+      case "attack":
+        if (this.image !== this.sprites.attack.image) {
+          this.image = this.sprites.attack.image;
+          this.framesMax = this.sprites.attack.framesMax;
+          this.framesCurrent = 0;
+        }
+        break;
+      case "damage":
+        break;
+      case "death":
+        break;
+
+      default:
+        break;
+    }
   }
 }
 

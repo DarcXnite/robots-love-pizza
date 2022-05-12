@@ -30,8 +30,8 @@ const timmy = new Hero({
   framesMax: 6,
   scale: 3,
   offset: {
-    x: 100,
-    y: 124,
+    x: 55,
+    y: 153,
   },
   sprites: {
     idle: {
@@ -40,6 +40,10 @@ const timmy = new Hero({
     },
     run: {
       imageSrc: "./images/sprites/timmy-run.png",
+      framesMax: 6,
+    },
+    attack: {
+      imageSrc: "./images/sprites/timmy-attack.png",
       framesMax: 6,
     },
   },
@@ -58,6 +62,23 @@ const drone = new Enemy({
   velocity: { x: 0, y: 0 },
   color: "yellow",
   offset: { x: 75, y: 0 },
+  imageSrc: "./images/sprites/droid-right2left.png",
+  framesMax: 6,
+  scale: 3,
+  offset: {
+    x: 55,
+    y: 153,
+  },
+  sprites: {
+    idle: {
+      imageSrc: "./images/sprites/droid-right2left.png",
+      framesMax: 6,
+    },
+    // attack: {
+    //   imageSrc: "./images/sprites/timmy-attack.png",
+    //   framesMax: 6,
+    // },
+  },
 });
 
 const keys = {
@@ -111,7 +132,8 @@ const animate = () => {
     return;
   }
   timmy.update();
-  // drone.update();
+
+  drone.update();
 
   // spawn drones
   // drones.forEach((drone, index) => {
@@ -166,13 +188,15 @@ const animate = () => {
   timmy.velocity.x = 0;
 
   // movement checker, so the last key pressed will be the newest movement detected
-  timmy.image = timmy.sprites.idle.image;
+
   if (keys.ArrowLeft.pressed && lastKey === "ArrowLeft") {
     timmy.velocity.x = -5;
-    timmy.image = timmy.sprites.run.image;
+    timmy.switchSprite("run");
   } else if (keys.ArrowRight.pressed && lastKey === "ArrowRight") {
     timmy.velocity.x = 5;
-    timmy.image = timmy.sprites.run.image;
+    timmy.switchSprite("run");
+  } else {
+    timmy.switchSprite("idle");
   }
 
   // attack collision detection
