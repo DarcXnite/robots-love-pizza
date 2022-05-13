@@ -1,6 +1,8 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 const startBtn = document.querySelector("#startGame");
+const loserScreen = document.querySelector(".loserScreen");
+const winnerScreen = document.querySelector(".winnerScreen");
 
 let gameState = false;
 let jumpAudio = new Audio("./audio/Jump2.wav");
@@ -31,7 +33,7 @@ const background = new Sprite({
   imageSrc: "./images/bg.png",
 });
 
-const timmy = new Hero({
+let timmy = new Hero({
   position: { x: 120, y: 200 },
   velocity: { x: 0, y: 0 },
   color: "red",
@@ -122,7 +124,7 @@ const attackBoxCollision = ({ rect1, rect2 }) => {
   );
 };
 
-const drones = [];
+let drones = [];
 let spawnTimer = 2500;
 
 // const changeTime = () => {
@@ -199,10 +201,7 @@ const animate = () => {
     const loserScreen = document.querySelector(".loserScreen");
     loserScreen.classList.remove("display-none");
     document.querySelector(".loserScreen").classList.remove("display-none");
-    document.querySelector("#restartGame").addEventListener("click", () => {
-      window.location.reload();
-      // loserScreen.classList.add("display-none");
-    });
+
     return;
   }
 
@@ -210,12 +209,7 @@ const animate = () => {
     gameState === false;
     const winnerScreen = document.querySelector(".winnerScreen");
     winnerScreen.classList.remove("display-none");
-    document
-      .querySelector("#winnerRestartGame")
-      .addEventListener("click", () => {
-        window.location.reload();
-        // winnerScreen.classList.add("display-none");
-      });
+
     return;
   }
 
@@ -316,6 +310,47 @@ startBtn.addEventListener("click", () => {
   document.querySelector(".instructions").classList.add("display-none");
 });
 
+const gameReset = () => {
+  timmy = new Hero({
+    position: { x: 120, y: 200 },
+    velocity: { x: 0, y: 0 },
+    color: "red",
+    offset: { x: 50, y: 20 },
+    imageSrc: "./images/sprites/timmy-idle.png",
+    framesMax: 6,
+    scale: 3,
+    offset: {
+      x: 55,
+      y: 153,
+    },
+    sprites: {
+      idle: {
+        imageSrc: "./images/sprites/timmy-idle.png",
+        framesMax: 6,
+      },
+      run: {
+        imageSrc: "./images/sprites/timmy-run.png",
+        framesMax: 6,
+      },
+      attack: {
+        imageSrc: "./images/sprites/timmy-attack.png",
+        framesMax: 6,
+      },
+    },
+    attackBox: {
+      offset: {
+        x: 75,
+        y: 0,
+      },
+      width: 100,
+      height: 70,
+    },
+  });
+  drones = [];
+  killCount = 0;
+  heroHealth = 3;
+};
+
 const actionsHandler = (e) => {
   switch (e.key) {
     case "ArrowUp":
@@ -375,3 +410,13 @@ const actionsEnder = (e) => {
 
 document.addEventListener("keydown", actionsHandler);
 document.addEventListener("keyup", actionsEnder);
+
+document.querySelector("#restartGame").addEventListener("click", () => {
+  gameReset();
+  loserScreen.classList.add("display-none");
+});
+
+document.querySelector("#winnerRestartGame").addEventListener("click", () => {
+  gameReset();
+  winnerScreen.classList.add("display-none");
+});
