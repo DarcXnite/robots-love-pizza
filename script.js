@@ -3,6 +3,9 @@ const ctx = canvas.getContext("2d");
 const startBtn = document.querySelector("#startGame");
 
 let gameState = false;
+let jumpAudio = new Audio("./audio/Jump2.wav");
+let killAudio = new Audio("./audio/Explosion2.wav");
+let hitTakenAduio = new Audio("./audio/Hit_Hurt3.wav");
 
 canvas.width = 1024;
 canvas.height = 576;
@@ -187,7 +190,7 @@ const animate = () => {
     return;
   }
 
-  if (killCount === 50) {
+  if (killCount === 20) {
     gameState === false;
     const winnerScreen = document.querySelector(".winnerScreen");
     winnerScreen.classList.remove("display-none");
@@ -220,12 +223,11 @@ const animate = () => {
       timmy.isAttacking = false;
       drone.isAlive = false;
       if (!drone.isAlive) {
-        console.log("destroyed");
+        killAudio.play();
         killCount++;
         drones.splice(index, 1);
         document.querySelector("#killCount").innerText = killCount;
       }
-      console.log("attacking");
     }
 
     // enemy attack collision detecton
@@ -289,6 +291,7 @@ const animate = () => {
   if (attackBoxCollision({ rect1: drone, rect2: timmy }) && drone.isAttacking) {
     // ensure that only 1 hit per attack press
     drone.isAttacking = false;
+    hitTakenAduio.play();
     heroHealth--;
     document.querySelector("#heroHealth").innerText = heroHealth;
   }
@@ -304,6 +307,7 @@ const actionsHandler = (e) => {
   switch (e.key) {
     case "ArrowUp":
     case "s":
+      jumpAudio.play();
       timmy.isJumping === true;
       timmy.jumpCount++;
       timmy.velocity.y = -10;
