@@ -6,6 +6,7 @@ let gameState = false;
 let jumpAudio = new Audio("./audio/Jump2.wav");
 let killAudio = new Audio("./audio/Explosion2.wav");
 let hitTakenAduio = new Audio("./audio/Hit_Hurt3.wav");
+let timmySwings = new Audio("./audio/timmy-attack.wav");
 
 canvas.width = 1024;
 canvas.height = 576;
@@ -121,6 +122,19 @@ const attackBoxCollision = ({ rect1, rect2 }) => {
 };
 
 const drones = [];
+let spawnTimer = 2500;
+
+// const changeTime = () => {
+//   const x = setInterval(() => {
+//     if (spawnTimer === 500) {
+//       clearInterval(x);
+//     } else {
+//       spawnTimer -= 500;
+//     }
+//     console.log(spawnTimer);
+//     spawnDrone();
+//   }, 3000);
+// };
 
 const spawnDrone = () => {
   setInterval(() => {
@@ -158,7 +172,7 @@ const spawnDrone = () => {
       })
     );
     // console.log(drones);
-  }, 1600);
+  }, 1200);
 };
 
 let heroHealth = 3;
@@ -169,13 +183,14 @@ const startGame = () => {
   heroHealth = 3;
   killCount = 0;
   animate();
+  // changeTime();
   spawnDrone();
 };
 
 // runs the refresh loop just like gameloop
 const animate = () => {
   window.requestAnimationFrame(animate);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   background.update();
   if (heroHealth <= 0) {
@@ -203,9 +218,6 @@ const animate = () => {
     return;
   }
 
-  if (!gameState) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
   timmy.update();
 
   // drone.update();
@@ -307,12 +319,12 @@ const actionsHandler = (e) => {
   switch (e.key) {
     case "ArrowUp":
     case "s":
-      jumpAudio.play();
-      timmy.isJumping === true;
-      timmy.jumpCount++;
-      timmy.velocity.y = -10;
-      console.log(timmy.isJumping);
-      console.log(timmy.jumpCount);
+      if (gameState) {
+        jumpAudio.play();
+        timmy.isJumping === true;
+        timmy.jumpCount++;
+        timmy.velocity.y = -10;
+      }
 
       break;
     // case "ArrowDown":
@@ -330,7 +342,10 @@ const actionsHandler = (e) => {
 
       break;
     case "a":
-      timmy.attack();
+      if (gameState) {
+        timmySwings.play();
+        timmy.attack();
+      }
       break;
     default:
       break;

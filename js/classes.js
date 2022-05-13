@@ -307,7 +307,10 @@ class Enemy extends Sprite {
   attack() {
     if (this.canAttack) {
       this.canAttack = false;
-      if (this.position.x - timmy.position.x <= 175) {
+      if (
+        this.position.x - timmy.position.x < 175 &&
+        this.position.x - timmy.position.x > -175
+      ) {
         this.inRange = true;
         this.isAttacking = true;
         if (this.isAttacking) {
