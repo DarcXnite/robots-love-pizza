@@ -19,6 +19,7 @@ const randNum = () => {
 
 const bgMusic = () => {
   let audio = new Audio("./audio/dark-dragon.mp3");
+  audio.volume = 0.2;
   audio.play();
 };
 
